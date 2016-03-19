@@ -1,6 +1,18 @@
 # MYL
 
->person_info{
+##raw_html
+```
+{
+  _id:(objectId)
+  link:String
+  html_raw:String
+}
+```
+
+##person_info
+```
+{
+  _id:(objectId)
   name:String
   birthday:String
   city:String
@@ -13,4 +25,7 @@
   bwh:String
   breast:String
   feet:String
+  link:Stirng
 }
+```
+
