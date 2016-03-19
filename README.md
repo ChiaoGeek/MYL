@@ -1,6 +1,6 @@
 # MYL
 
-person_info{
+>person_info{
   name:String
   birthday:String
   city:String
