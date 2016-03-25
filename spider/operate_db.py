@@ -1,52 +1,50 @@
-# eccoding:utf-8
 # encoding:utf-8
-import gevent
-import urllib2
-import gevent.monkey
+
+import pymongo
 import time
-from gevent.pool import Pool
-import ssl
-import requests
 
-gevent.monkey.patch_socket()
-gevent.monkey.patch_all()
-global i
-i = 0
-def fetch(url):
-    global i
-    #print url
-    try:
-        response = requests.get(url, verify=True, timeout=1)
-        res = response.text
+class OperateDb():
+
+    def __get_col(self, db_name, col_name):
+        client = pymongo.MongoClient()
+        collection = client[db_name][col_name]
+        return collection
+
+    def read_one(self, db_name, col_name, **kwargs):
+        db = self.__get_col(db_name, col_name)
+        return db.find_one(kwargs)
+
+    def read_all(self, db_name, col_name, **kwargs):
+        db = self.__get_col(db_name, col_name)
+        return db.find(kwargs)
+
+    def insert_one(self, db_name, col_name, data_dict):
+        db = self.__get_col(db_name, col_name)
+        print data_dict
+        db.insert(data_dict)
+
+
+
+
+
+if __name__ == "__main__":
+    operate_db = OperateDb()
+    start_time = time.time()
+    condition = {}
+    res = {}
+    res = operate_db.read_all("myl", "person_url")
+    i = 0
+    for x in res:
         i = i + 1
-        #print i
-        return res
-    except requests.ConnectionError as e:
-        print "[ConnectionError]--%s" % url
-    except requests.HTTPError as e:
-        print "[HTTPError]--%s" % url
-    except requests.Timeout as e:
-        print "[Timeout]--%s" % url
+        condition['url'] = x['url']
+        res = operate_db.read_one("myl", "person_html", **condition)
+        if res["url"]:
+            print i
+            print res["url"]
+        else:
+            print x['url']
+            print "-----"
+            break
+    end_time = time.time()
+    print end_time - start_time
 
-def synchronous():
-    for i in range(20):
-        fetch(i)
-
-
-def asynchronous():
-
-    threads = []
-    #for i in range(1,1000):
-    #    threads.append(gevent.spawn(fetch, i))
-    urls = ['https://mm.taobao.com/json/request_top_list.htm'] * 4000
-    pool = Pool(3000)
-    r = pool.map(fetch, urls)
-    #print r[0]
-
-start = time.time()
-print "synchronous:"
-#synchronous()
-print "asynchronous"
-asynchronous()
-end = time.time()
-print end-start
